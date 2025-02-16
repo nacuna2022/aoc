@@ -1,8 +1,12 @@
 CC=gcc
 
-all: $(p1)
+all: $(p1) $(p2)
 
-$(p1) : $(p1).o $(p2).o
+$(p1) : $(p1).o
+	@echo "ELF $@"
+	@$(CC) -o $@ $<
+
+$(p2) : $(p2).o
 	@echo "ELF $@"
 	@$(CC) -o $@ $<
 
