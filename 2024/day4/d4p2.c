@@ -85,6 +85,13 @@ static void exit_map(struct map *map)
 	return;
 }
 
+static void map_garbage_collect(struct map *map)
+{
+	free(map->buf);
+	map->buf = NULL;
+	return;
+}
+
 static inline int map_tile(struct map *map)
 {
 	return map->buf[map->pos];
@@ -189,175 +196,53 @@ static int map_down_left(struct map *map)
 	return err;
 }
 
-static const char the_word[] = "XMAS";
-
-static int get_0300_instance(struct map *map, const char *p)
+static int check_xxxx_instance(struct map *map,
+		int (*first_move)(struct map *), 
+		int (*second_move)(struct map *))
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
+	int err = first_move(map);
+	if (err == 'M') {
+		second_move(map);
+		err = second_move(map);
+		if (err == 'S' || err != -1) {
+			first_move(map);
+		}
+		return err == 'S' ? 1 : 0 ;
+	} else if (err != -1) {
+		second_move(map);
 	}
-
-	if ((ret = map_right(map)) == *p) {
-		err = get_0300_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_left(map);
-	}
-	return err;
+	return 0;
 }
 
-static int get_0600_instance(struct map *map, const char *p)
+static int check_0430_instance(struct map *map)
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_down(map)) == *p) {
-		err = get_0600_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_up(map);
-	}
-	return err;
+	return check_xxxx_instance(map, map_up_left, map_down_right);
 }
 
-static int get_0900_instance(struct map *map, const char *p)
+static int check_0730_instance(struct map *map)
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_left(map)) == *p) {
-		err = get_0900_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_right(map);
-	}
-	return err;
+	return check_xxxx_instance(map,	map_up_right, map_down_left);
 }
 
-static int get_1200_instance(struct map *map, const char *p)
+static int check_0130_instance(struct map *map)
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_up(map)) == *p) {
-		err = get_1200_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_down(map);
-	}
-	return err;
+	return check_xxxx_instance(map, map_down_left, map_up_right);
 }
 
-static int get_0130_instance(struct map *map, const char *p)
+static int check_1030_instance(struct map *map)
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_up_right(map)) == *p) {
-		err = get_0130_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_down_left(map);
-	}
-	return err;
+	return check_xxxx_instance(map, map_down_right, map_up_left);
 }
 
-static int get_0430_instance(struct map *map, const char *p)
+static int get_xmas_instance_count(struct map *map)
 {
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_down_right(map)) == *p) {
-		err = get_0430_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_up_left(map);
-	}
-	return err;
-}
-
-static int get_0730_instance(struct map *map, const char *p)
-{
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_down_left(map)) == *p) {
-		err = get_0730_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_up_right(map);
-	}
-	return err;
-}
-
-static int get_1030_instance(struct map *map, const char *p)
-{
-	int err = 0;
-	int ret;
-
-	if (*p == '\0') {
-		return 1;
-	}
-
-	if ((ret = map_up_left(map)) == *p) {
-		err = get_1030_instance(map, p+1);
-	}
-
-	if (ret != -1) {
-		map_down_right(map);
-	}
-	return err;
-}
-
-static int get_instance_count(struct map *map)
-{
-	const char *p = the_word;
 	int instance = 0;
-
-	instance += get_1200_instance(map, p+1);
-	instance += get_0130_instance(map, p+1);
-	instance += get_0300_instance(map, p+1);
-	instance += get_0430_instance(map, p+1);
-	instance += get_0600_instance(map, p+1);
-	instance += get_0730_instance(map, p+1);
-	instance += get_0900_instance(map, p+1);
-	instance += get_1030_instance(map, p+1);
-
-	return instance;
+	instance += check_0430_instance(map);
+	instance += check_0730_instance(map);
+	instance += check_1030_instance(map);
+	instance += check_0130_instance(map);
+	assert(instance < 3);
+	return instance == 2 ? 1 : 0;
 }
 
 int main(void)
@@ -368,16 +253,16 @@ int main(void)
 
 	/* we walk the entire map until we aren't able to */
 	for (;;) {
-		if ((tile = map_tile(&map)) == 'X') {
-			instance += get_instance_count(&map);
+		if ((tile = map_tile(&map)) == 'A') {
+			instance += get_xmas_instance_count(&map);
 		}
 		tile = map_step(&map, 1);
 		if (tile == -1) {
 			break;
 		}
 	}
-
-	printf("instance count: %d\n", instance);
+	exit_map(&map);
+	printf("X-MAS count: %d\n", instance);
 	return 0;
 }
 
