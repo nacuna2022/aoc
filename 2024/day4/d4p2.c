@@ -5,9 +5,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-static int line_count;	/* row */
-static int line_length; /* column */
-
 struct map {
 	char *buf;
 	int pos;
@@ -34,8 +31,7 @@ static size_t get_line(int fd, char *buf, size_t buf_size)
 }
 
 /* !!!multiple passes on input file to get dimensions!!! */
-static int init_map_from_pathname(struct map *map, char *pathname, 
-		int *line_length, int *line_count)
+static int init_map_from_pathname(struct map *map, char *pathname) 
 {
 	char *m;
 	int fd;
@@ -249,7 +245,7 @@ int main(void)
 {
 	int tile;
 	int instance = 0;
-	init_map_from_pathname(&map, "input", &line_length, &line_count);
+	init_map_from_pathname(&map, "input");
 
 	/* we walk the entire map until we aren't able to */
 	for (;;) {
