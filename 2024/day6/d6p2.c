@@ -380,10 +380,7 @@ int main(void)
 
 		/* put a blocker on this tile */
 		*tile_i = '#';
-		//printf("New tile map\n");
-		//print_tile_map();
-		//printf("\n");
-
+		
 		/* start simulation */
 		while(1) {
 			char reason;
@@ -409,8 +406,6 @@ int main(void)
 				}
 			}
 			guard_mark_position(&guard);
-			//print_tile_map();
-			//printf("\n\n");
 		}
 reset_tile_map:
 		memcpy(tile_map, tile_map_copy, tile_size);
