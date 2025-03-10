@@ -123,6 +123,7 @@ static void clean_up(void)
 	struct eq_struct *eq;
 	while (list_head) {
 		eq = list_head->next;
+		free(list_head->numbers);
 		free(list_head);
 		list_head = eq;
 	}
