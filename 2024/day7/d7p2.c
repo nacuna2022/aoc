@@ -145,6 +145,7 @@ static void clean_up(void)
 		free(list_head);
 		list_head = eq;
 	}
+	list_tail = list_head = NULL;
 	return;
 }
 
