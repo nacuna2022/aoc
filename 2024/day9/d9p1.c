@@ -163,6 +163,13 @@ static struct disk_struct *new_disk_from_input(char *pathname)
 	return disk;
 }
 
+static void disk_destroy(struct disk_struct *disk)
+{
+	free(disk->blk);
+	free(disk);
+	return;
+}
+
 int main(void)
 {
 	struct disk_struct *disk;
@@ -170,6 +177,7 @@ int main(void)
 	disk = new_disk_from_input("input");
 	disk_compact(disk);
 	checksum = disk_checksum(disk);
+	disk_destroy(disk);
 	printf("checksum is : %lu\n", checksum);
 	return 0;
 }
