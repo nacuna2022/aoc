@@ -170,7 +170,6 @@ static bool page_is_adjacent(const int xpage, const int ypage)
 
 static int process_update(struct update *update)
 {
-	int ret = 0;
 	int i;
 	int j;
 	for (i = 0; i < update->count; i++) {

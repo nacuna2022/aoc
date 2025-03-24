@@ -5,9 +5,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-static int line_count;	/* row */
-static int line_length; /* column */
-
 struct map {
 	char *buf;
 	int pos;
@@ -375,7 +372,7 @@ int main(void)
 			break;
 		}
 	}
-
+	exit_map(&map);
 	printf("instance count: %d\n", instance);
 	return 0;
 }

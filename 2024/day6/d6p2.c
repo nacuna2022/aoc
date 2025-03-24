@@ -125,32 +125,11 @@ static struct tile_info *tile_info_alloc(char *location)
 	return alloc_tile_info(pp, address);
 }
 
-static struct tile_info *get_tile_info(char *location)
-{
-	unsigned long h;
-	h = location2hash_idx(location);
-
-	struct tile_info **pp = &tile_info_ht[h];
-	for (;;) {
-		struct tile_info *p = *pp;
-		uintptr_t address = (uintptr_t)location;
-		if (!p)
-			break;
-		if (address == p->location)
-			return p;
-
-		pp = &(p->next);
-	}
-
-	return NULL;
-}
-
 /* these are absolute directions not relative to guard */
 static char *get_tile_from_direction(char *tile_ptr, 
 		enum cardinal_direction dir)
 {
 	char *new_ptr;
-	char *line_end;
 	char *tile_map_end = tile_map + tile_size;
 	int idx;
 	switch(dir) {
@@ -228,7 +207,6 @@ static char guard_peek_right(struct guard_struct *guard)
 static bool guard_step(struct guard_struct *guard, char *reason)
 {
 	char front;
-	struct tile_info *tile_info;
 	front = guard_peek_front(guard);
 	if ((front != 0) && (front != '#')) {
 		guard->location = get_tile_from_direction(guard->location,
@@ -285,6 +263,7 @@ static inline char *guard_home(struct guard_struct *guard)
 	return guard->location_copy;
 }
 
+#if 0
 static void print_tile_map(void)
 {
 	int i;
@@ -298,6 +277,7 @@ static void print_tile_map(void)
 	}
 	return;
 }
+#endif
 
 static void guard_mark_position(struct guard_struct *guard)
 {
@@ -414,6 +394,7 @@ reset_tile_map:
 	}
 
 	printf("guard loop count: %d\n", loop_count);
+	free(tile_map_copy);
 	free(tile_map);
 	return 0;
 }

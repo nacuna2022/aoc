@@ -183,21 +183,6 @@ static bool install_antinode(struct tile_map *map, struct antenna *ant1,
 	return true;
 }
 
-static void print_tile_map(struct tile_map *map)
-{
-	char *p = map->buffer;
-	while(p < (map->buffer + map->size)) {
-		size_t i;
-		for (i = 0; i < map->line_size; i++, p++) {
-			printf("%c", *p);
-		}
-		printf("\n");
-	}
-	printf("\n");
-	return;
-}
-
-
 #define for_each_antenna(ant, list) \
 	for ((ant) = (list); (ant) != NULL; (ant) = (ant)->next) 
 

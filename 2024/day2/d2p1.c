@@ -35,7 +35,7 @@ static void die(int status, char *fmt, ...)
 
 static void next(void)
 {
-        while(tk = *p) {
+        while((tk = *p) != 0) {
                 p++;
                 if (tk >= '0' && tk <= '9') {
                         tk_value = tk - '0';

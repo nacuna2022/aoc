@@ -81,13 +81,6 @@ static void exit_map(struct map *map)
 	return;
 }
 
-static void map_garbage_collect(struct map *map)
-{
-	free(map->buf);
-	map->buf = NULL;
-	return;
-}
-
 static inline int map_tile(struct map *map)
 {
 	return map->buf[map->pos];

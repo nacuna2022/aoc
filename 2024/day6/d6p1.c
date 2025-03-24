@@ -28,7 +28,6 @@ static char *get_tile_from_direction(char *tile_ptr,
 		enum cardinal_direction dir)
 {
 	char *new_ptr;
-	char *line_end;
 	char *tile_map_end = tile_map + tile_size;
 	int idx;
 	switch(dir) {
@@ -141,6 +140,7 @@ static void init_guard(struct guard_struct *guard, char *location,
 	return;
 }
 
+#if 0
 static void print_tile_map(void)
 {
 	int i;
@@ -154,7 +154,7 @@ static void print_tile_map(void)
 	}
 	return;
 }
-
+#endif
 
 int main(void)
 {
