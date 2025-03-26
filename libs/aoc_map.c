@@ -1,6 +1,9 @@
 #include <aoc_map.h>
 
 struct aoc_map {
+	int line_lize;
+	int size;
+	char *data;
 };
 
 struct aoc_map *aoc_new_map(char *path_name)
