@@ -5,8 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <aoc_input_cache.h>
-#include <aoc_die.h>
+#include <aoc/input_cache.h>
 
 struct aoc_input_cache {
 	char *raw;

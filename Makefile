@@ -7,7 +7,7 @@ include .config
 
 _TOPDIR=$(CURDIR)
 _CC=gcc
-_CFLAGS:=-Wall -O0 -ggdb -I$(CURDIR)/include -L$(CURDIR)/libs -laoc
+_CFLAGS:=-Wall -O0 -ggdb -I$(CURDIR) -L$(CURDIR)/libs -laoc
 export TOPDIR=$(_TOPDIR)
 export CFLAGS=$(_CFLAGS)
 export CC=$(_CC)
