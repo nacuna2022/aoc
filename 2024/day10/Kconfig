@@ -1,0 +1,8 @@
+config 2024_D10P1
+	bool "Part 1"
+	select INPUT_CACHE
+	depends on 2024_D10
+
+config 2024_D10P2
+	bool "Part 2"
+	depends on 2024_D10

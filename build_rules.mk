@@ -1,17 +1,4 @@
-TOPDIR=$(patsubst %/, %, $(dir $(CURDIR)))
-TOPDIR:=$(patsubst %/, %, $(dir $(TOPDIR)))
-
-CC=gcc
-
-CFLAGS:=-Wall -O0 -ggdb -I$(TOPDIR)/include
-
-AOCLIBDIR:=$(TOPDIR)/libs
-
-aoc_libs=
-
 .DEFAULT_GOAL:=all
-
-include $(AOCLIBDIR)/lib_rules.mk
 
 all: $(p1) $(p2)
 
@@ -29,9 +16,9 @@ $(p2) : $(aoc_libs) $(p2).o
 
 .PHONY: clean tags
 clean:
-	rm -rf $(p1) $(p2)
-	rm -rf *.o
-	rm -rf *.d
+	@rm -rf $(p1) $(p2)
+	@rm -rf *.o
+	@rm -rf *.d
 
 tags:
 	find . -name "*.[ch]" -exec ctags --append {} +
