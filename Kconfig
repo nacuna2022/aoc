@@ -1,0 +1,9 @@
+mainmenu "Niel Acuna Advent of Code"
+
+menu "AOC 2024"
+source 2024/Kconfig
+endmenu
+
+menu "AOC Library"
+source libs/Kconfig
+endmenu

@@ -1,0 +1,31 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Niel Acuna Advent of Code
+#
+
+#
+# AOC 2024
+#
+CONFIG_2024_D1=y
+CONFIG_2024_D1P1=y
+# CONFIG_2024_D1P2 is not set
+# CONFIG_2024_D2 is not set
+# CONFIG_2024_D3 is not set
+# CONFIG_2024_D4 is not set
+# CONFIG_2024_D5 is not set
+# CONFIG_2024_D6 is not set
+# CONFIG_2024_D7 is not set
+# CONFIG_2024_D8 is not set
+CONFIG_2024_D9=y
+CONFIG_2024_D9P1=y
+CONFIG_2024_D9P2=y
+CONFIG_2024_D10=y
+CONFIG_2024_D10P1=y
+CONFIG_2024_D10P2=y
+
+#
+# AOC Library
+#
+CONFIG_INPUT_CACHE=y
+# CONFIG_LINE_CACHE is not set
+# CONFIG_MAP_CACHE is not set

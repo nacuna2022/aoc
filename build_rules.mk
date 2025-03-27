@@ -1,24 +1,24 @@
-CC=gcc
+.DEFAULT_GOAL:=all
 
 all: $(p1) $(p2)
 
-$(p1) : $(p1).o
+$(p1) : $(aoc_libs) $(p1).o
 	@echo "ELF $@"
-	@$(CC) -Wall -o $@ $<
+	@$(CC) $(CFLAGS) -o $@ $^
 
-$(p2) : $(p2).o
+$(p2) : $(aoc_libs) $(p2).o
 	@echo "ELF $@"
-	@$(CC) -Wall -o $@ $<
+	@$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
 	@echo "CC $@"
-	@$(CC) -Wall -MMD -O0 -ggdb -c -o $@ $<
+	@$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
 .PHONY: clean tags
 clean:
-	rm -rf $(p1) $(p2)
-	rm -rf *.o
-	rm -rf *.d
+	@rm -rf $(p1) $(p2)
+	@rm -rf *.o
+	@rm -rf *.d
 
 tags:
 	find . -name "*.[ch]" -exec ctags --append {} +
