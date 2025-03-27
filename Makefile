@@ -1,3 +1,8 @@
+
+ifeq ($(wildcard .config),)
+.DEFAULT default:
+	@kconfig-conf --alldefconfig Kconfig
+endif
 include .config
 
 _TOPDIR=$(CURDIR)
@@ -29,4 +34,4 @@ clean:
 	@$(MAKE) --no-print-directory -C libs/ clean
 
 menuconfig: 
-	kconfig-mconf Kconfig
+	@kconfig-mconf Kconfig
