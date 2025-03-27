@@ -68,7 +68,7 @@ open_nok:
 	return input_cache;
 }
 
-void free_aoc_input_cache(struct aoc_input_cache *input_cache)
+void aoc_free_input_cache(struct aoc_input_cache *input_cache)
 {
 	assert(input_cache != NULL);
 	free(input_cache->raw);

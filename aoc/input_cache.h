@@ -8,7 +8,7 @@
 struct aoc_input_cache;
 
 struct aoc_input_cache *aoc_new_input_cache_from_file(char *pathname);
-void free_aoc_input(struct aoc_input_cache *input_cache);
+void aoc_free_input_cache(struct aoc_input_cache *input_cache);
 size_t aoc_input_cache_size(struct aoc_input_cache *input_cache);
 int aoc_input_cache_get_element(struct aoc_input_cache *input_cache,
 		int idx);

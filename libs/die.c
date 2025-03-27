@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <aoc_die.h>
+
+#include <aoc/die.h>
 
 void aoc_die(int status, char *fmt, ...)
 {

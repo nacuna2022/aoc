@@ -31,6 +31,8 @@ clean:
 	@for DIR in $(AOC_DIRS-y); do \
 		$(MAKE) --no-print-directory -C $$DIR clean; \
 	done
+
+lib_clean:
 	@$(MAKE) --no-print-directory -C libs/ clean
 
 menuconfig: 
