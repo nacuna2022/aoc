@@ -6,3 +6,4 @@ d[0-9]p[0-9]
 .config.*
 *.a
 d*p*
+tags
