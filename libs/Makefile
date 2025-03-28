@@ -2,7 +2,8 @@ include ../.config
 include build_rules.mk
 
 libaoc.a: $(aoc_libs)
-	ar rcs $@ $^
+	@echo "AR $@"
+	@ar rcs $@ $^
 
 %.o: %.c
 	@echo "LIB $@"

@@ -1,12 +1,12 @@
 .DEFAULT_GOAL:=all
 
-all: $(p1) $(p2)
+all: $(p1) $(p2) 
 
-$(p1) : $(aoc_libs) $(p1).o
+$(p1) : $(aoc_libs) $(p1).o ../../libs/libaoc.a
 	@echo "ELF $@"
 	@$(CC) $(CFLAGS) -o $@ $^ -laoc
 
-$(p2) : $(aoc_libs) $(p2).o
+$(p2) : $(aoc_libs) $(p2).o ../../libs/libaoc.a
 	@echo "ELF $@"
 	@$(CC) $(CFLAGS) -o $@ $^ -laoc
 

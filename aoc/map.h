@@ -8,7 +8,7 @@
 
 struct aoc_map;
 
-struct aoc_map *aoc_new_map(char *path_name);
+struct aoc_map *aoc_new_map(char *pathname);
 void aoc_free_map(struct aoc_map *map);
 
 int aoc_map_peek_up(struct aoc_map *map, char *tile);

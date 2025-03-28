@@ -1,14 +1,43 @@
-#include <aoc_map.h>
+#include <aoc/map.h>
+#include <aoc/incache.h>
+
+#include <stdlib.h>
 
 struct aoc_map {
 	int line_lize;
 	int size;
-	char *data;
+	char data[];
 };
 
-struct aoc_map *aoc_new_map(char *path_name)
+static struct aoc_map *aoc_map_init(struct aoc_map *map,
+		struct aoc_incache *incache)
 {
-	return NULL;
+	/* basically just iterate over incache to get all characters
+	 * skipping over all newlines */
+
+	return map;
+}
+
+static struct aoc_map *aoc_map_new(struct aoc_incache *incache)
+{
+	struct aoc_map *map;
+	size_t size;
+	if (incache == NULL)
+		return NULL;
+
+	size = aoc_incache_size(incache);
+	map = malloc((sizeof * map) + size);
+	if (map == NULL)
+		return NULL;
+
+	return aoc_map_init(map, incache);
+}
+
+struct aoc_map *aoc_new_map(char *pathname)
+{
+	struct aoc_incache *incache;
+	incache = aoc_new_incache(pathname);
+	return aoc_map_new(incache);
 }
 
 void aoc_free_map(struct aoc_map *map)

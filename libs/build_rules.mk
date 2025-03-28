@@ -2,11 +2,12 @@
 lib_srcs-y=
 
 lib_srcs-$(CONFIG_INPUT_CACHE)+=libs/incache.c
-lib_srcs-$(CONFIG_LINE_CACHE)+=libs/lcache.c
-lib_srcs-$(CONFIG_MAP_CACHE)+=libs/mcache.c
+lib_srcs-$(CONFIG_LINE_CACHE)+=libs/lncache.c
+lib_srcs-$(CONFIG_MAP_CACHE)+=libs/map.c
 
-# die is always present
+#always present modules here
 lib_srcs-y+=libs/die.c
+lib_srcs-y+=libs/dlist.c
 
 aoc_libs=$(patsubst libs/%.c, %.o, $(lib_srcs-y))
 

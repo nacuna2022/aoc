@@ -8,8 +8,8 @@
 #include <aoc/incache.h>
 
 struct aoc_incache {
-	char *raw;
-	size_t size;	
+	size_t size;
+	char raw[];
 };
 
 static int aoc_cache_input(struct aoc_incache *aoc_input, int fd, size_t size)
@@ -17,21 +17,17 @@ static int aoc_cache_input(struct aoc_incache *aoc_input, int fd, size_t size)
 	char *cache;
 	int ret = 0;
 
-	if ((cache = malloc(size)) != NULL) {
-		ssize_t count;
-		char *ptr = cache;
-		while((count = read(fd, ptr, size)) < size) {
-			if (count == 0) {
-				break;
-			} else if (count == -1) {
-				free(cache);
-				ret = -1;
-				break;
-			}
-			ptr += count;
-			size -= count;
+	ssize_t count;
+	char *ptr = aoc_input->raw;
+	while((count = read(fd, ptr, size)) < size) {
+		if (count == 0) {
+			break;
+		} else if (count == -1) {
+			ret = -1;
+			break;
 		}
-		aoc_input->raw = cache;
+		ptr += count;
+		size -= count;
 	}
 	return ret;
 }
@@ -39,7 +35,7 @@ static int aoc_cache_input(struct aoc_incache *aoc_input, int fd, size_t size)
 static struct aoc_incache *aoc_incache_new(int fd, size_t size)
 {
 	struct aoc_incache *incache;
-	if ((incache = malloc(sizeof * incache)) != NULL) {
+	if ((incache = malloc((sizeof * incache) + size)) != NULL) {
 		if ((aoc_cache_input(incache, fd, size)) != 0) {
 			free(incache);
 			incache = NULL;
@@ -70,7 +66,6 @@ open_nok:
 void aoc_free_incache(struct aoc_incache *incache)
 {
 	assert(incache != NULL);
-	free(incache->raw);
 	free(incache);
 	return; 
 }
