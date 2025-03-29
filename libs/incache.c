@@ -12,9 +12,8 @@ struct aoc_incache {
 	char raw[];
 };
 
-static int aoc_cache_input(struct aoc_incache *aoc_input, int fd, size_t size)
+static int aoc_cache_input(struct aoc_incache *aoc_input, int fd, ssize_t size)
 {
-	char *cache;
 	int ret = 0;
 
 	ssize_t count;
@@ -76,7 +75,7 @@ size_t aoc_incache_size(struct aoc_incache *incache)
 	return incache->size;
 }
 
-int aoc_incache_get(struct aoc_incache *incache, int idx)
+int aoc_incache_get(struct aoc_incache *incache, size_t idx)
 {
 	int ret = -1;
 	assert(incache != NULL);

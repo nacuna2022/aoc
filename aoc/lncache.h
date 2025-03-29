@@ -12,8 +12,8 @@ int aoc_lncache_getline(struct aoc_lncache *lncache, struct aoc_line **line,
 	size_t idx);
 void aoc_lncache_print(struct aoc_lncache *lncache);
 
-size_t aoc_line_get_length(struct aoc_line *line);
-int aoc_line_get_line(struct aoc_line *line, char *buffer, size_t buffer_len);
+size_t aoc_line_strlen(struct aoc_line *line);
+int aoc_line_get(struct aoc_line *line, char *buffer, size_t buffer_len);
 
 #endif /* __AOC_LINE_CACHE_H__ */
 
