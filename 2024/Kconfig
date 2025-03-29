@@ -37,4 +37,4 @@ config 2024_D9
 
 config 2024_D10
 	bool "--- Day 10: Hoof It ---"
-	source 2024/day10/Kconfig`
+	source 2024/day10/Kconfig

@@ -10,6 +10,3 @@ config MAP_CACHE
 	bool "Map Cache"
 	select INPUT_CACHE
 
-config DIE
-	bool "AOC Die"
-	select INPUT_CACHE
