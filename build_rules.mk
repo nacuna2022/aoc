@@ -2,11 +2,11 @@
 
 all: $(p1) $(p2) 
 
-$(p1) : $(aoc_libs) $(p1).o ../../libs/libaoc.a
+$(p1) : $(aoc_libs) $(p1).o
 	@echo "ELF $@"
 	@$(CC) $(CFLAGS) -o $@ $^ -laoc
 
-$(p2) : $(aoc_libs) $(p2).o ../../libs/libaoc.a
+$(p2) : $(aoc_libs) $(p2).o
 	@echo "ELF $@"
 	@$(CC) $(CFLAGS) -o $@ $^ -laoc
 
