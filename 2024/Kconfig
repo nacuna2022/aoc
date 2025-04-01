@@ -38,3 +38,7 @@ config 2024_D9
 config 2024_D10
 	bool "--- Day 10: Hoof It ---"
 	source 2024/day10/Kconfig
+
+config 2024_D11
+	bool "--- Day 11: Plutonian Pebbles ---"
+	source 2024/day11/Kconfig
