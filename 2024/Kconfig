@@ -42,3 +42,7 @@ config 2024_D10
 config 2024_D11
 	bool "--- Day 11: Plutonian Pebbles ---"
 	source 2024/day11/Kconfig
+
+config 2024_D12
+	bool "--- Day 12: Garden Groups ---"
+	source 2024/day12/Kconfig
