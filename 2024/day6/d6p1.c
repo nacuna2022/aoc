@@ -1,240 +1,140 @@
 #include <stdio.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <assert.h>
 #include <stdbool.h>
 
-enum cardinal_direction {
-	DIR_NORTH = 0, 	/* up */
-	DIR_EAST,	/* right */
-	DIR_SOUTH,	/* down */
-	DIR_WEST,	/* left */
-	DIR_MAX,
-};
+#include <aoc/mapcache.h>
+#include <aoc/bot.h>
+#include <aoc/lut.h>
 
-static struct guard_struct {
-	char *location;
-	enum cardinal_direction facing;
-} guard = {0};
-
-static char *tile_map = NULL;
-static int tile_size = 0;
-static int tile_line_size = 0;
-
-/* these are absolute directions not relative to guard */
-static char *get_tile_from_direction(char *tile_ptr, 
-		enum cardinal_direction dir)
+static void init_guard_starting_point(struct aoc_mapcache *lab)
 {
-	char *new_ptr;
-	char *tile_map_end = tile_map + tile_size;
-	int idx;
+	int tile;
+	while((tile = aoc_mapcache_walk_forward(lab)) != -1) {
+		if (tile == '^') {
+			aoc_mapcache_set_start(lab);
+			break;
+		}
+	}
+	assert(tile == '^');
+	return;
+}
+
+static int lab_peek_direction(struct aoc_mapcache *lab,
+	enum aoc_direction dir)
+{
 	switch(dir) {
-	case DIR_NORTH:
-	{
-		new_ptr = tile_ptr - tile_line_size;
-		if (new_ptr >= tile_map) {
-			return new_ptr;
-		}
-		break;
-	}
-	case DIR_EAST:
-	{
-		/* find the line ending index so we know if we are walking off
-		 * the cliff when we step east. line_round_up() */
-		idx = (int)(tile_ptr - tile_map);
-		idx = ((idx + (tile_line_size - 1)) / tile_line_size) * tile_line_size;
-		new_ptr = tile_ptr + 1;
-		if (new_ptr < (tile_map + idx)) {
-			return new_ptr;
-		}
-		break;
-	}
-	case DIR_SOUTH:
-	{
-		new_ptr = tile_ptr + tile_line_size;
-		if (new_ptr < tile_map_end) {
-			return new_ptr;
-		}
-		break;
-	}
-	case DIR_WEST:
-	{
-		/* see DIR_EAST. line_round_down() */
-		idx = (int)(tile_ptr - tile_map);
-		idx = (idx / tile_line_size) * tile_line_size;
-		new_ptr = tile_ptr - 1;
-		if (new_ptr >= tile_map) {
-			return new_ptr;
-		}
-		break;
-	}
+	case aoc_direction_up:
+		return aoc_mapcache_peek_up(lab);
+	case aoc_direction_right:
+		return aoc_mapcache_peek_right(lab);
+	case aoc_direction_down:
+		return aoc_mapcache_peek_down(lab);
+	case aoc_direction_left:
+		return aoc_mapcache_peek_left(lab);
 	default:
-		assert(0);
+		break;
 	}
-	return NULL;
+
+	/* we never go here. */
+	assert(0);
+	return -1;
 }
 
-static bool guard_mark_position(struct guard_struct *guard)
+static int guard_peek_front(struct aoc_mapcache *lab, struct aoc_bot *guard)
 {
-	char *tile_ptr = guard->location;
-	if (*tile_ptr != 'X') {
-		*tile_ptr = 'X';
-		return true;
-	}
-	return false;
+	enum aoc_direction front;
+	assert(lab != NULL);
+	assert(guard != NULL);
+	front = aoc_bot_get_front(guard);
+	return lab_peek_direction(lab, front);
 }
 
-/* peek to see if there is a blocker in path */
-static char guard_peek(struct guard_struct *guard)
+static void guard_turn_right(struct aoc_bot *guard)
 {
-	char *tile_ptr;
-	tile_ptr = get_tile_from_direction(guard->location, guard->facing);
-	if (tile_ptr) {
-		return *tile_ptr;
-	}
-	return 0;
-}
-
-/* we step on the direction where guard is facing currently */
-static bool guard_step(struct guard_struct *guard, char *reason)
-{
-	char ch;
-	ch = guard_peek(guard);
-	if ((ch != 0) && (ch != '#')) {
-		guard->location = get_tile_from_direction(guard->location,
-				guard->facing);
-		return true;
-	}
-	*reason = ch;
-	return false;
-}
-
-static void guard_turn(struct guard_struct *guard, int i)
-{
-	enum cardinal_direction new_facing = (guard->facing + i) % DIR_MAX;
-	guard->facing = new_facing;
+	assert(guard != NULL);
+	aoc_bot_turn_right(guard);
 	return;
 }
 
-static void guard_turn_right(struct guard_struct *guard)
+static void lab_walk_direction(struct aoc_mapcache *lab,
+	enum aoc_direction dir)
 {
-	guard_turn(guard, 1);
-	return;
-}
-
-#if 0
-static void guard_turn_left(struct guard_struct *guard)
-{
-	guard_turn(guard, 3);
-	return;
-}
-#endif
-
-static void init_guard(struct guard_struct *guard, char *location,
-		enum cardinal_direction facing)
-{
-	guard->location = location;
-	guard->facing = facing;
-	return;
-}
-
-#if 0
-static void print_tile_map(void)
-{
-	int i;
-	char *ptr = tile_map;
-	while(*ptr != '\0') {
-		for (i=0; i<tile_line_size; i++) {
-			printf("%c", *ptr);
-			ptr++;
-		}
-		printf("\n");
+	switch(dir) {
+	case aoc_direction_up:
+		aoc_mapcache_step_up(lab);
+		break;
+	case aoc_direction_right:
+		aoc_mapcache_step_right(lab);
+		break;
+	case aoc_direction_down:
+		aoc_mapcache_step_down(lab);
+		break;
+	case aoc_direction_left:
+		aoc_mapcache_step_left(lab);
+		break;
+	default:
+		break;
 	}
 	return;
 }
-#endif
+
+static void guard_walk_forward(struct aoc_mapcache *lab,
+	struct aoc_bot *guard)
+{
+	enum aoc_direction front;
+	assert(lab != NULL);
+	assert(guard != NULL);
+	front = aoc_bot_get_front(guard);
+	lab_walk_direction(lab, front);
+	return;
+}
 
 int main(void)
 {
-	struct stat input_stat;
-	int input_fd;
-	int err;
-	char ch;
-	char *guard_loc_ptr = NULL;
-	size_t newline_count = 0;
-	int unique_positions = 0;
-	
-	if (stat("input", &input_stat) == -1) {
-		fprintf(stderr, "cannot stat input file\n");
-		exit(-1);
-	}
+	struct aoc_mapcache *lab;
+	struct aoc_bot *guard;
+	struct aoc_lut *lab_lut;
+	int distinct_positions = 0;
 
-	/* we now know how big of a buffer to allocate. this buffer is a little
-	 * bit bigger than what we actually want because each line in input 
-	 * file has a terminating newline ('\n') which fstat also counts. 
-	 */
-	if ((tile_map = malloc(input_stat.st_size)) == NULL) {
-		fprintf(stderr, "cannot allocate tile map\n");
-		exit(-1);
-	}
+	lab = aoc_new_mapcache("input");
+	guard = aoc_new_bot(aoc_direction_up);
+	lab_lut = aoc_new_lut(12, 0, NULL);
 
-	input_fd = open("input", O_RDONLY);
-	while((err = read(input_fd, &ch, 1)) != 0) {
-		if (err == -1) {
-			fprintf(stderr, "error reading from input\n");
-			exit(-1);
+	/* initialize the map with the guard starting tile */
+	init_guard_starting_point(lab);
+
+	for (;;) {
+		int tile;
+		unsigned long tile_id;
+
+		/* check to see if guard has visited this tile prior */
+		aoc_mapcache_tile(lab, &tile_id);
+		if (aoc_lut_lookup(lab_lut, tile_id) == NULL) {
+			aoc_lut_add(lab_lut, tile_id);
+			distinct_positions += 1;
 		}
 
-		assert((ch == '.') || (ch == '#') || (ch == '^') || (ch == '\n'));
+		/* peek guard front so he can try to walk forward */
+		tile = guard_peek_front(lab, guard);
 
-		if (ch == '\n') {
-			newline_count += 1;
+		/* if guard can walk out from this tile. simulation is done. */
+		if (tile == -1)
+			break;
+		
+		/* if tile is a blocker e.g. it is '#', guard needs to 
+		 * turn right */
+		if (tile == '#') {
+			guard_turn_right(guard);
 			continue;
 		}
-
-		/* additionally, lets record the location of the guard 
-		 * on the tile map. assumption is that the guard always 
-		 * initially faces the north direction
-		 */
-		if (ch == '^') {
-			assert(guard_loc_ptr == NULL);
-			guard_loc_ptr = tile_map + tile_size;
-			init_guard(&guard, guard_loc_ptr, DIR_NORTH);
-			ch = '.';
-		}
-
-		*(tile_map + tile_size) = ch;
-
-		tile_size += 1;
+		
+		guard_walk_forward(lab, guard);
 	}
+	printf("distinct positions: %d\n", distinct_positions);
 
-	/* make sure we have a guard facing the up direction */
-	assert(guard_loc_ptr != NULL);
-	tile_line_size = tile_size / newline_count;
-
-	/* we count the initial position of the guard as part
-	 * of the unique position */
-	unique_positions += guard_mark_position(&guard) == true ? 1 : 0;
-	while(1) {
-		char reason;
-		if (guard_step(&guard, &reason) != true) {
-			/* if guard cant step forward, check the reason why */
-			if (reason == '#') {
-				guard_turn_right(&guard);
-			} else if (reason == 0) {
-				/* guard has stepped out of the tile map */
-				break;
-			}
-			continue;
-		}
-
-		unique_positions += guard_mark_position(&guard) == true ? 1 : 0;
-	}
-
-	printf("unique positions count: %d\n", unique_positions);
-	free(tile_map);
+	aoc_free_lut(lab_lut);
+	aoc_free_bot(guard);
+	aoc_free_mapcache(lab);
 	return 0;
 }
 
