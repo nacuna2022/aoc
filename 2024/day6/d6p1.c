@@ -89,20 +89,18 @@ static void guard_walk_forward(struct aoc_mapcache *lab,
 	return;
 }
 
-int main(void)
+static int simulate_guard_patrol(struct aoc_mapcache *lab)
 {
-	struct aoc_mapcache *lab;
 	struct aoc_bot *guard;
 	struct aoc_lut *lab_lut;
 	int distinct_positions = 0;
 
-	lab = aoc_new_mapcache("input");
 	guard = aoc_new_bot(aoc_direction_up);
 	lab_lut = aoc_new_lut(12, 0, NULL);
 
 	/* initialize the map with the guard starting tile */
 	init_guard_starting_point(lab);
-
+	
 	for (;;) {
 		int tile;
 		unsigned long tile_id;
@@ -130,10 +128,23 @@ int main(void)
 		
 		guard_walk_forward(lab, guard);
 	}
-	printf("distinct positions: %d\n", distinct_positions);
 
 	aoc_free_lut(lab_lut);
 	aoc_free_bot(guard);
+	return distinct_positions;
+}
+
+int main(void)
+{
+	struct aoc_mapcache *lab;
+	int distinct_positions;
+
+	if ((lab = aoc_new_mapcache("input")) == NULL) {
+		fprintf(stderr, "cannot open input file\n");
+		return -1;
+	}
+	distinct_positions = simulate_guard_patrol(lab);
+	printf("distinct positions: %d\n", distinct_positions);
 	aoc_free_mapcache(lab);
 	return 0;
 }
