@@ -5,6 +5,7 @@
 #include <aoc/mapcache.h>
 #include <aoc/bot.h>
 #include <aoc/lut.h>
+#include <aoc/die.h>
 
 static void init_guard_starting_point(struct aoc_mapcache *lab,
 	unsigned long guard_start_tile_id)
@@ -158,8 +159,7 @@ int main(void)
 	int guard_trapped_count = 0;
 
 	if ((lab = aoc_new_mapcache("input")) == NULL) {
-		fprintf(stderr, "cannot open input file\n");
-		return -1;
+		aoc_die(-1, "cannot open input file [%s]\n", "input");
 	}
 
 	/* record the guard starting position */
