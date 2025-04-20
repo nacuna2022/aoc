@@ -50,3 +50,7 @@ config 2024_D12
 config 2024_D13
 	bool "--- Day 13: Claw Contraption ---"
 	source 2024/day13/Kconfig
+
+config 2024_D14
+	bool "--- Day 14: Restroom Redoubt ---"
+	source 2024/day14/Kconfig
