@@ -223,11 +223,43 @@ static void simulate_all_robots(struct aoc_mapcache *ebhq,
 	return;
 }
 
+static unsigned long long compute_2d_variance(struct aoc_dlist_node *robot_list)
+{
+	struct aoc_dlist_node *node;
+	unsigned long long sumx = 0;
+	unsigned long long sumx_squared = 0;
+	unsigned long long sumy = 0;
+	unsigned long long sumy_squared = 0;
+	unsigned long long count = 0;
+
+	assert(robot_list != NULL);
+	for (node = robot_list->next; node != robot_list; node = node->next) {
+		struct robot_struct *robot;
+		robot = aoc_dlist_container(node, offsetof(struct robot_struct, node));
+		assert(robot != NULL);
+		
+		sumx += robot->position.x;
+		sumx_squared += (robot->position.x * robot->position.x);
+		sumy += robot->position.y;
+		sumy_squared += (robot->position.y * robot->position.y);
+		count += 1;
+	}
+
+	unsigned long long xvariance;
+	unsigned long long yvariance;
+
+	xvariance = (count * sumx_squared - sumx * sumx) / (count * (count-1));
+	yvariance = (count * sumy_squared - sumy * sumy) / (count * (count-1));
+
+	return xvariance + yvariance;
+}
+
 int main()
 {
 	struct aoc_lncache *robot_input;
 	struct aoc_dlist_node robot_list;
 	struct aoc_mapcache *ebhq;
+	struct aoc_mapcache *ebhq_snapshot;
 
 	robot_input = aoc_new_lncache("input");
 	aoc_dlist_init(&robot_list);
@@ -237,15 +269,28 @@ int main()
 	assert(ebhq != NULL);
 
 	int i;
+	unsigned long long smallest_variance ;
+	unsigned long long variance_2d;
+	int time_step;
+	variance_2d = compute_2d_variance(&robot_list);
+	smallest_variance = variance_2d;
 	for (i = 0; i < 10000; i += 1) {
-		printf("step %d\n", i + 1);
-		simulate_all_robots(ebhq, &robot_list, 1);
-		aoc_mapcache_show(ebhq);
-		printf("\n\n");
-	}
+		variance_2d = compute_2d_variance(&robot_list);
+		if (variance_2d < smallest_variance) {
+			ebhq_snapshot = aoc_mapcache_dup(ebhq);
+			smallest_variance = variance_2d;
+			time_step = i;
+		}
 
+		simulate_all_robots(ebhq, &robot_list, 1);
+	}
+	printf("possible easter egg appearance at : %d, displaying map...", time_step);
+	aoc_mapcache_show(ebhq_snapshot);
+	printf("\n");
+	
 	release_all_robots(&robot_list);
 	aoc_free_lncache(robot_input);
+	aoc_free_mapcache(ebhq_snapshot);
 	aoc_free_mapcache(ebhq);
 	return 0;
 }
