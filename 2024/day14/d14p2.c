@@ -259,7 +259,7 @@ int main()
 	struct aoc_lncache *robot_input;
 	struct aoc_dlist_node robot_list;
 	struct aoc_mapcache *ebhq;
-	struct aoc_mapcache *ebhq_snapshot;
+	struct aoc_mapcache *ebhq_snapshot = NULL;
 
 	robot_input = aoc_new_lncache("input");
 	aoc_dlist_init(&robot_list);
@@ -274,9 +274,11 @@ int main()
 	int time_step;
 	variance_2d = compute_2d_variance(&robot_list);
 	smallest_variance = variance_2d;
-	for (i = 0; i < 10000; i += 1) {
+	for (i = 0; i < 7500; i += 1) {
 		variance_2d = compute_2d_variance(&robot_list);
 		if (variance_2d < smallest_variance) {
+			if (ebhq_snapshot != NULL)
+				aoc_free_mapcache(ebhq_snapshot);
 			ebhq_snapshot = aoc_mapcache_dup(ebhq);
 			smallest_variance = variance_2d;
 			time_step = i;
