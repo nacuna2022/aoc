@@ -54,3 +54,7 @@ config 2024_D13
 config 2024_D14
 	bool "--- Day 14: Restroom Redoubt ---"
 	source 2024/day14/Kconfig
+
+config 2024_D15
+	bool "--- Day 15: Warehouse Woes ---"
+	source 2024/day15/Kconfig
