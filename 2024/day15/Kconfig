@@ -1,0 +1,7 @@
+config 2024_D15P1
+	bool "Part 1"
+	depends on 2024_D15
+
+config 2024_D15P2
+	bool "Part 2"
+	depends on 2024_D15
