@@ -290,48 +290,6 @@ static bool can_push_vertical(struct aoc_mapcache *warehouse,
 		step_back(warehouse, side_dir);
 	}
 	return can_push;
-#if 0
-	int near_side;
-	int tile;
-	bool can_push_near_side = true;
-	bool can_push_far_side = true;
-
-	assert(warehouse != NULL);
-	assert(front == aoc_direction_up || front == aoc_direction_down);
-	assert_box(warehouse);
-
-	near_side = aoc_mapcache_tile(warehouse, NULL);
-
-	/* process near side */
-	tile = aoc_mapcache_peek_dir(warehouse, front);
-	if (tile == '[' ||  tile == ']') {
-		aoc_mapcache_step_dir(warehouse, front);
-		can_push_near_side = can_push_vertical(warehouse, front, false);
-		step_back(warehouse, front);
-	} else if (tile == '#') {
-		can_push_near_side = false;
-	}
-
-	if (can_push_near_side == false) {
-		return false;
-	}
-
-	/* process far side */
-	if (is_far_side == false) {
-		enum aoc_direction side_dir;
-		if (near_side == ']') {
-			side_dir = aoc_direction_left;
-		} else {
-			side_dir = aoc_direction_right;
-		}
-
-		aoc_mapcache_step_dir(warehouse, side_dir);
-		can_push_far_side = can_push_vertical(warehouse, front, true);
-		step_back(warehouse, side_dir);
-	}
-
-	return can_push_near_side && can_push_far_side;
-#endif
 }
 
 static void move_one_box(struct aoc_mapcache *warehouse, 
