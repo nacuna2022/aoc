@@ -97,7 +97,7 @@ static int simulate_guard_patrol(struct aoc_mapcache *lab,
 	bool guard_has_stepped_out = false;
 
 	guard = aoc_new_bot(aoc_direction_up);
-	lab_lut = aoc_new_lut(12, sizeof(struct tile_info), NULL);
+	lab_lut = aoc_new_lut(12, sizeof(unsigned long), sizeof(struct tile_info));
 
 	/* initialize the map with the guard starting tile */
 	init_guard_starting_point(lab, guard_start_tile_id);
@@ -118,8 +118,8 @@ static int simulate_guard_patrol(struct aoc_mapcache *lab,
 		/* if tile is a blocker e.g. it is '#', guard needs to 
 		 * turn right */
 		if (tile == '#') {
-			struct aoc_lut_node *node;
-			struct tile_info *info;
+			int ret;
+			struct tile_info info;
 			enum aoc_direction guard_direction;
 
 			/* guard might need to turn two times */
@@ -128,19 +128,18 @@ static int simulate_guard_patrol(struct aoc_mapcache *lab,
 				tile = guard_peek_front(lab, guard);
 			}
 			aoc_mapcache_tile(lab, &tile_id);
-			node = aoc_lut_lookup(lab_lut, tile_id);
 			guard_direction = aoc_bot_get_front(guard);
-			if (node != NULL) {
-				info = aoc_lut_node_data(node);
-				
+			ret = aoc_lut_lookup(lab_lut, &tile_id, sizeof tile_id,
+				&info, sizeof info);
+			if (ret == 0) {
 				/* guard is trapped! */
-				if (info->guard_last_direction == guard_direction) {
+				if (info.guard_last_direction == guard_direction) {
 					break;
 				}
 			} else {
-				node = aoc_lut_add(lab_lut, tile_id);
-				info = aoc_lut_node_data(node);
-				info->guard_last_direction = guard_direction;
+				info.guard_last_direction = guard_direction;
+				aoc_lut_add(lab_lut, &tile_id, sizeof tile_id,
+					&info, sizeof info);
 			}
 		}
 		

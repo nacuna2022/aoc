@@ -97,7 +97,7 @@ static int simulate_guard_patrol(struct aoc_mapcache *lab)
 	int distinct_positions = 0;
 
 	guard = aoc_new_bot(aoc_direction_up);
-	lab_lut = aoc_new_lut(12, 0, NULL);
+	lab_lut = aoc_new_lut(12, sizeof(unsigned long), 0);
 
 	/* initialize the map with the guard starting tile */
 	init_guard_starting_point(lab);
@@ -108,8 +108,8 @@ static int simulate_guard_patrol(struct aoc_mapcache *lab)
 
 		/* check to see if guard has visited this tile prior */
 		aoc_mapcache_tile(lab, &tile_id);
-		if (aoc_lut_lookup(lab_lut, tile_id) == NULL) {
-			aoc_lut_add(lab_lut, tile_id);
+		if (aoc_lut_lookup(lab_lut, &tile_id, sizeof tile_id, NULL, 0) == -1) {
+			aoc_lut_add(lab_lut, &tile_id, sizeof tile_id, NULL, 0);
 			distinct_positions += 1;
 		}
 
