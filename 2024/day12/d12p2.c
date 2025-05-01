@@ -22,7 +22,6 @@ struct garden_region {
 
 struct plot_info {
 	struct garden_region *region;
-	bool visited;
 };
 
 struct point {
@@ -35,19 +34,6 @@ struct edge {
 	struct point end;
 	struct aoc_dlist_node node; /* link to region edges */
 };
-
-static void add_garden_plot(struct aoc_lut *plot_lut, unsigned long id) 
-{
-	struct aoc_lut_node *lut_node;
-	struct plot_info *plot_info;
-	assert(plot_lut != NULL);
-	lut_node = aoc_lut_add(plot_lut, id);
-	assert(lut_node != NULL);
-	plot_info = aoc_lut_node_data(lut_node);
-	plot_info->region = NULL;
-	plot_info->visited = false;
-	return;
-}
 
 static struct garden_region *new_garden_region(int plant)
 {
@@ -64,27 +50,19 @@ static struct garden_region *new_garden_region(int plant)
 	return region;
 }
 
-static struct plot_info *get_plot_info(struct aoc_lut *plot_lut,
-	unsigned long plot_id)
-{
-	struct aoc_lut_node *lut_node;
-	lut_node = aoc_lut_lookup(plot_lut, plot_id);
-	assert(lut_node != NULL);
-	return aoc_lut_node_data(lut_node);
-}
-
 static void garden_plot_scan_region(struct aoc_mapcache *garden, 
 	struct garden_region *region, struct aoc_lut *plot_lut)
 {
+	int err;
 	unsigned long plot_id;
 	int plant;
 	int adj_plant;
-	struct plot_info *plot_info;
+	struct plot_info plot_info;
 
 	/* stop processing. we have visited this plot before */
 	plant = aoc_mapcache_tile(garden, &plot_id);
-	plot_info = get_plot_info(plot_lut, plot_id);
-	if (plot_info->visited == true) {
+	err = aoc_lut_lookup(plot_lut, &plot_id, sizeof plot_id, &plot_info, sizeof plot_info);
+	if (err == 0) {
 		return;
 	}
 
@@ -93,14 +71,15 @@ static void garden_plot_scan_region(struct aoc_mapcache *garden,
 		return;
 	}
 
-	/* if we reach here, we have not visited this plot before and we 
-	 * are still in the same region. */
-	plot_info->visited = true;
-
 	/* add this new area to this region */
-	plot_info->region = region;
+	plot_info.region = region;
 	region->area += 1;
 	
+	/* add this lut again with update information */
+	err = aoc_lut_add(plot_lut, &plot_id, sizeof plot_id,
+			&plot_info, sizeof plot_info);
+	assert(err == 0);
+
 	/* try to go up from here */
 	adj_plant = aoc_mapcache_peek_up(garden);
 	if ((adj_plant != -1) && (adj_plant == region->plant)) {
@@ -384,9 +363,10 @@ static void get_edge_coord(struct aoc_mapcache *garden, struct edge *edge,
 static void garden_plot_edges(struct aoc_mapcache *garden, 
 	struct aoc_lut *plot_lut)
 {
+	int err;
 	int plant;
 	unsigned long plot_id;
-	struct plot_info *plot_info;
+	struct plot_info plot_info;
 	struct garden_region *region;
 	int x;
 	int y;
@@ -396,13 +376,13 @@ static void garden_plot_edges(struct aoc_mapcache *garden,
 
 	/* get plot_info of current tile */
 	plant = aoc_mapcache_tile(garden, &plot_id);
-	plot_info = get_plot_info(plot_lut, plot_id);
-	assert(plot_info != NULL);
-	assert(plot_info->region != NULL);
+	err = aoc_lut_lookup(plot_lut, &plot_id, sizeof plot_id, &plot_info, sizeof plot_info);
+	assert(err == 0);
+	assert(plot_info.region != NULL);
 
 	/* we now have a reference to the region where this tile belongs */
-	assert(plot_info->region->plant == plant);
-	region = plot_info->region;
+	assert(plot_info.region->plant == plant);
+	region = plot_info.region;
 
 	aoc_mapcache_coord(garden, &x, &y);
 	if (edge_is_boundary(garden, aoc_direction_up, region, plant) == true) {
@@ -516,47 +496,38 @@ int main(void)
 	int total_price = 0;
 
 	garden = aoc_new_mapcache("input");
-	plot_lut = aoc_new_lut(12, sizeof(struct plot_info), NULL);
+	plot_lut = aoc_new_lut(12, sizeof(unsigned long), sizeof(struct plot_info));
 	assert(garden);
 	assert(plot_lut);
 
-	/* pass 1: attach metadata to all plots on the map */
-	aoc_mapcache_reset(garden);
-	for (;;) {
-		unsigned long plot_id;
-		int plant;
-		plant = aoc_mapcache_tile(garden, &plot_id);
-		assert(plant != -1);
-		add_garden_plot(plot_lut, plot_id);
-		if (aoc_mapcache_walk_forward(garden) == -1)
-			break;
-	}
-
-	/* pass 2: for each unvisited tile we encounter... process the region
+	/* pass 1: for each unvisited tile we encounter... process the region
 	 * where it belongs */
 	aoc_mapcache_reset(garden);
 	aoc_dlist_init(&regions);
 	for (;;) {
+		int err;
 		unsigned long plot_id;
 		int plant;
-		struct plot_info *plot_info;
+		struct plot_info plot_info;
 
 		plant = aoc_mapcache_tile(garden, &plot_id);
-		plot_info = get_plot_info(plot_lut, plot_id);
-		if (plot_info->region == NULL) {
+		err = aoc_lut_lookup(plot_lut, &plot_id, sizeof plot_id,
+				&plot_info, sizeof plot_info);
+		if (err == -1) {
 			struct garden_region *region;
 			region = new_garden_region(plant);
 			assert(region != NULL);
-			plot_info->region = region;
 			aoc_dlist_prepend(&regions, &region->node);
 			garden_plot_scan_region(garden, region, plot_lut);
+			assert(aoc_lut_lookup(plot_lut, &plot_id, sizeof plot_id,
+				&plot_info, sizeof plot_info) == 0);
 		}
-		assert(plot_info->region != NULL);
+		assert(plot_info.region != NULL);
 		if (aoc_mapcache_walk_forward(garden) == -1)
 			break;
 	}
 
-	/* pass 3: for each tile, get its boundaries */
+	/* pass 2: for each tile, get its boundaries */
 	aoc_mapcache_reset(garden);
 	for (;;) {
 		garden_plot_edges(garden, plot_lut);
