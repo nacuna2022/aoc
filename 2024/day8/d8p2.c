@@ -136,6 +136,7 @@ static inline void get_coord(struct tile_map *map, uintptr_t loc,
 	return;
 }
 
+#if 0
 static void print_tile_map(struct tile_map *map)
 {
 	char *p = map->buffer;
@@ -149,6 +150,7 @@ static void print_tile_map(struct tile_map *map)
 	printf("\n");
 	return;
 }
+#endif
 
 static void alloc_antinode(struct antenna **antpp, uintptr_t location,
 		int frequency)
@@ -307,8 +309,6 @@ void free_antenna_list(struct antenna *list)
 static void free_tile_map(struct tile_map *map)
 {
 	size_t i;
-	struct antenna *ant;
-	struct antenna *tmp;
 	for (i = 0; i < CHAR_MAX; i++) {
 		free_antenna_list(map->antenna_lut[i]);
 	}
