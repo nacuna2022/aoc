@@ -8,10 +8,10 @@
 
 static void add_garden_plot(struct aoc_lut *plot_lut, unsigned long id) 
 {
-	struct aoc_lut_node *lut_node;
+	int err;
 	assert(plot_lut != NULL);
-	lut_node = aoc_lut_add(plot_lut, id);
-	assert(lut_node != NULL);
+	err = aoc_lut_add(plot_lut, &id, sizeof id, NULL, 0);
+	assert(err == 0);
 	return;
 }
 
@@ -19,15 +19,15 @@ static void add_garden_plot(struct aoc_lut *plot_lut, unsigned long id)
 static void process_region(struct aoc_mapcache *garden, int region,
 	struct aoc_lut *plot_lut, int *area, int *perimeter)
 {
+	int err;
 	unsigned long plot_id;
 	int plant;
 	int adj_plant;
-	struct aoc_lut_node *lut_node;
 
 	/* stop processing we have visited this plot before */
 	plant = aoc_mapcache_tile(garden, &plot_id);
-	lut_node = aoc_lut_lookup(plot_lut, plot_id);
-	if (lut_node == NULL) {
+	err = aoc_lut_lookup(plot_lut, &plot_id, sizeof plot_id, NULL, 0);
+	if (err == -1) {
 		return;
 	}
 
@@ -38,7 +38,7 @@ static void process_region(struct aoc_mapcache *garden, int region,
 
 	/* if we reach here, we have not visited this plot before and we 
 	 * are still in the same region. */
-	aoc_lut_remove(lut_node);
+	aoc_lut_remove(plot_lut, &plot_id, sizeof plot_id);
 	*area += 1;
 
 	/* try go up from here */
@@ -91,7 +91,7 @@ int main(void)
 	int total_price = 0;
 
 	garden = aoc_new_mapcache("input");
-	plot_lut = aoc_new_lut(12, 0, NULL);
+	plot_lut = aoc_new_lut(12, sizeof(unsigned long), 0);
 	assert(garden);
 	assert(plot_lut);
 
