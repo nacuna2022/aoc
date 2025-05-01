@@ -50,7 +50,7 @@ static struct vertex *page2vertex(const int page)
 }
 
 static void add_adjacent(struct vertex *xvertex, struct vertex *yvertex,
-                const int idx)
+                const size_t idx)
 {
         if (idx >= xvertex->adj_size) {
                 size_t new_size = xvertex->adj_size + ADJ_BLKSIZE;
@@ -154,7 +154,7 @@ static void update_free(struct update *update)
 static bool page_is_adjacent(const int xpage, const int ypage)
 {
 	struct vertex *xv;
-	int i;
+	size_t i;
 	xv = page2vertex(xpage);
 	assert(xv != NULL);
 	for (i = 0; i < xv->adj_count; i++) {
@@ -170,8 +170,8 @@ static bool page_is_adjacent(const int xpage, const int ypage)
 
 static int process_update(struct update *update)
 {
-	int i;
-	int j;
+	size_t i;
+	size_t j;
 	for (i = 0; i < update->count; i++) {
 		/* check all before */
 		for (j = 0; j < i; j++) {

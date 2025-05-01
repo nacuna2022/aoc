@@ -50,7 +50,7 @@ static struct vertex *page2vertex(const int page)
 }
 
 static void add_adjacent(struct vertex *xvertex, struct vertex *yvertex,
-                const int idx)
+                const size_t idx)
 {
         if (idx >= xvertex->adj_size) {
                 size_t new_size = xvertex->adj_size + ADJ_BLKSIZE;
