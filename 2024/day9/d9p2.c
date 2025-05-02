@@ -256,7 +256,7 @@ static struct disk_struct *new_disk_from_input(char *pathname)
 {
 	FILE *input;
 	struct disk_struct *disk;
-	input = fopen("input", "r");
+	input = fopen(pathname, "r");
 	assert(input != NULL);
 	disk = new_empty_disk();
 	disk_populate(disk, input);

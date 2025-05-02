@@ -19,13 +19,13 @@ static void disk_enlarge_disk(struct disk_struct *disk)
 	return;
 }
 
-static bool disk_has_enough_space(struct disk_struct *disk, int count)
+static bool disk_has_enough_space(struct disk_struct *disk, size_t count)
 {
 	return (disk->capacity - disk->blk_count) > count;
 }
 
 static void disk_append_blk(struct disk_struct *disk, int file_id,
-		int count)
+		size_t count)
 {
 	size_t i;
 	while(!disk_has_enough_space(disk, count)) {
@@ -83,7 +83,7 @@ static struct disk_struct *new_empty_disk(void)
 	return empty_disk;
 }
 
-static int disk_last_file_block(struct disk_struct *disk, int last_blk)
+static int disk_last_file_block(struct disk_struct *disk, size_t last_blk)
 {
 	int i;
 	assert(last_blk <= disk->blk_count);
@@ -95,10 +95,9 @@ static int disk_last_file_block(struct disk_struct *disk, int last_blk)
 	return i;
 }
 
-static int disk_next_free_block(struct disk_struct *disk, int blk)
+static int disk_next_free_block(struct disk_struct *disk, size_t blk)
 {
-	int i;
-	assert(blk >= 0);
+	size_t i;
 	for (i = blk; i < disk->blk_count; i++) {
 		if (disk->blk[i] == -1) {
 			break;
@@ -155,7 +154,7 @@ static struct disk_struct *new_disk_from_input(char *pathname)
 {
 	FILE *input;
 	struct disk_struct *disk;
-	input = fopen("input", "r");
+	input = fopen(pathname, "r");
 	assert(input != NULL);
 	disk = new_empty_disk();
 	disk_populate(disk, input);
