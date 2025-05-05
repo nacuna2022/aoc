@@ -13,9 +13,15 @@ struct move_cost {
 	enum aoc_direction facing;
 };
 
+static struct move_cost *new_move_cost(unsigned long tile_id,
+	int cost, enum aoc_direction facing)
+{
+	return NULL;
+}
 
-static void analyze_tile(int cost, struct aoc_minheap **cost_heap,
-	struct aoc_lut *visited)
+
+static void analyze_tile(unsigned long tile_id, int cost, 
+	struct aoc_minheap **cost_heap,	struct aoc_lut *visited)
 {
 	return;
 }
@@ -24,7 +30,6 @@ static int maze_shortest_path(struct aoc_mapcache *maze)
 {
 	struct aoc_bot *reindeer;
 	struct aoc_minheap *cost_heap;
-	struct aoc_lut *unvisited;
 	unsigned long tile_id;
 	assert(maze != NULL);
 
@@ -34,28 +39,19 @@ static int maze_shortest_path(struct aoc_mapcache *maze)
 		aoc_die(-1, "cannot create reindeer\n");
 	}
 
-	/* cost_host maps cost to tile_id */
-	if ((cost_heap = aoc_new_minheap(sizeof(unsigned long))) == NULL) {
+	/* cost_heap maps cost to move_cost pointer */
+	if ((cost_heap = aoc_new_minheap(sizeof(struct move_cost *))) == NULL) {
 		aoc_die(-1, "cannot create min heap\n");
-	}
-
-	/* lut maps tile_id to initial cost of unvisited node */
-	if ((unvisited = aoc_new_lut(12, sizeof(unsigned long),  sizeof(struct move_cost))) == NULL) {
-		aoc_die(-1, "cannot create cost lookup table\n");
 	}
 
 	/* add our starting tile with cost = 0 to the minheap to 
 	 * get things started */
+	struct move_cost *move_cost;
 	aoc_mapcache_find_marker(maze, 'S');
 	aoc_mapcache_tile(maze, &tile_id);
-	aoc_minheap_insert(&cost_heap, 0, &tile_id, sizeof tile_id);
-
-	struct move_cost start_cost = {
-		.tile_id = tile_id,
-		.cost = 0,
-		.facing = aoc_direction_right,
-	};
-	aoc_lut_add(unvisited, &tile_id, sizeof tile_id, &start_cost, sizeof start_cost);
+	move_cost = new_move_cost(tile_id, 0, aoc_direction_right);
+	assert(move_cost != NULL);
+	aoc_minheap_insert(&cost_heap, move_cost->cost, &move_cost, sizeof(struct move_cost*));
 
 	for (;;) {
 		int cost;
