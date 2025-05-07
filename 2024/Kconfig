@@ -58,3 +58,7 @@ config 2024_D14
 config 2024_D15
 	bool "--- Day 15: Warehouse Woes ---"
 	source 2024/day15/Kconfig
+
+config 2024_D16
+	bool "--- Day 16: Reindeer Maze  ---"
+	source 2024/day16/Kconfig
