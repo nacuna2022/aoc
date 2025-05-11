@@ -6,7 +6,7 @@
 
 #include <aoc/mapcache.h>
 #include <aoc/die.h>
-#include <aoc/minheap.h>
+#include <aoc/priority_queue.h>
 #include <aoc/lut.h>
 
 struct move_key {
@@ -61,7 +61,7 @@ static struct movement *new_movement(struct aoc_lut *lut,
 
 static void analyze_direction(struct aoc_mapcache *maze,
 	enum aoc_direction dir, struct movement *prev_movement,
-	struct aoc_minheap **heap, struct aoc_lut *lut)
+	struct aoc_priority_queue **heap, struct aoc_lut *lut)
 {
 	unsigned long tile_id;
 	struct movement *movement;
@@ -77,6 +77,8 @@ static void analyze_direction(struct aoc_mapcache *maze,
 
 	if (dir != prev_movement->key.dir) {
 		new_cost += 1000;
+	} else if (dir == get_opposite_dir(prev_movement->key.dir)) {
+		goto exit;
 	}
 
 	key.tile_id = tile_id;
@@ -87,7 +89,7 @@ static void analyze_direction(struct aoc_mapcache *maze,
 	if (err == - 1) {
 		/* this is a new movement */
 		movement = new_movement(lut, new_cost, tile_id, dir);
-		aoc_minheap_insert(heap, movement->cost, &movement, sizeof(struct movement *));
+		aoc_priority_queue_insert(heap, movement->cost, &movement, sizeof(struct movement *));
 	} else if (movement->visited == false) { 
 		/* existing movement. we might need to update it with cheaper
 		 * cost. let's check. */
@@ -98,7 +100,7 @@ static void analyze_direction(struct aoc_mapcache *maze,
 			 * "stale" version of this with bigger cost. this is okay
 			 * since our newer version with cheaper cost will 
 			 * take precendence over it. */
-			aoc_minheap_insert(heap, movement->cost, &movement, sizeof(struct movement *));
+			aoc_priority_queue_insert(heap, movement->cost, &movement, sizeof(struct movement *));
 		}
 	}
 
@@ -109,7 +111,7 @@ exit:
 }
 
 static void analyze_tile(struct aoc_mapcache *maze, struct movement *movement,
-	struct aoc_minheap **heap, struct aoc_lut *lut)
+	struct aoc_priority_queue **heap, struct aoc_lut *lut)
 {
 	analyze_direction(maze, aoc_direction_up, movement, heap, lut);
 	analyze_direction(maze, aoc_direction_right, movement, heap, lut);
@@ -133,14 +135,14 @@ static int maze_find_shortest_path(struct aoc_mapcache *maze)
 	int score = 0;
 	struct aoc_lut *lut;
 	struct movement *movement;
-	struct aoc_minheap *heap;
+	struct aoc_priority_queue *heap;
 	unsigned long tile_id;
 	assert(maze != NULL);
 
 	if ((lut = aoc_new_lut(12, sizeof(struct move_key), sizeof(struct movement *))) == NULL) {
 		aoc_die(-1, "cannot allocate movement lookup table\n");
 	}
-	if ((heap = aoc_new_minheap(sizeof(struct movement *))) == NULL) {
+	if ((heap = aoc_new_priority_queue(sizeof(struct movement *))) == NULL) {
 		aoc_die(-1, "cannot allocate binary heap\n");
 	}
 
@@ -148,12 +150,12 @@ static int maze_find_shortest_path(struct aoc_mapcache *maze)
 	assert(aoc_mapcache_find_marker(maze, 'S') == 'S');
 	assert(aoc_mapcache_tile(maze, &tile_id) == 'S');
 	movement = new_movement(lut, 0, tile_id, aoc_direction_right);
-	aoc_minheap_insert(&heap, movement->cost, &movement, sizeof(struct movement *));
+	aoc_priority_queue_insert(&heap, movement->cost, &movement, sizeof(struct movement *));
 	for (;;) {
 		int cost;
 
 		/* extract the tile with cheapest movement */
-		aoc_minheap_get(heap, &cost, &movement, sizeof(struct movement *));
+		aoc_priority_queue_get_min(heap, &cost, &movement, sizeof(struct movement *));
 
 		/* is this the ending tile? */
 		if ((aoc_mapcache_goto_tile(maze, movement->key.tile_id)) == 'E') {
@@ -165,7 +167,7 @@ static int maze_find_shortest_path(struct aoc_mapcache *maze)
 		analyze_tile(maze, movement, &heap, lut);
 		movement->visited = true;
 	}
-	aoc_free_minheap(heap);
+	aoc_free_priority_queue(heap);
 	aoc_lut_foreach(lut, free_movement, NULL);
 	aoc_free_lut(lut);
 	return score;
